@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dpv-YD-sVn">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Mixer Host View Controller-->
+        <scene sceneID="2X5-Kq-7JB">
+            <objects>
+                <viewController id="dpv-YD-sVn" customClass="MixerHostViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="r6J-nd-PW9"/>
+                        <viewControllerLayoutGuide type="bottom" id="1s2-We-voB"/>
+                    </layoutGuides>
+                    <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="xMz-4G-PCt">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="ojE-zy-7id">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                <items>
+                                    <navigationItem title="MixerHost" id="awc-1Y-dP8"/>
+                                </items>
+                            </navigationBar>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="Wxv-Va-GOE">
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="4Gn-rm-3Gx"/>
+                                    <barButtonItem title="Play" width="240" style="plain" id="g48-kV-6Ea">
+                                        <connections>
+                                            <action selector="playOrStop:" destination="dpv-YD-sVn" id="RC5-XK-rVt"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="S2p-a6-r29"/>
+                                </items>
+                            </toolbar>
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="rounded_rectangle.png" translatesAutoresizingMaskIntoConstraints="NO" id="jPb-CQ-Z2T">
+                                <rect key="frame" x="10" y="178" width="579" height="74"/>
+                            </imageView>
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="rounded_rectangle.png" translatesAutoresizingMaskIntoConstraints="NO" id="CQy-ms-qmR">
+                                <rect key="frame" x="10" y="260" width="579" height="74"/>
+                            </imageView>
+                            <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0099999997764825821" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="BN0-46-tCZ" userLabel="Mixer Bus0 Level Fader">
+                                <rect key="frame" x="146" y="217" width="432" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="28" id="ceR-Dv-0FW"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="mixerInputGainChanged:" destination="dpv-YD-sVn" eventType="valueChanged" id="Xup-2m-Edj"/>
+                                </connections>
+                            </slider>
+                            <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Bvb-4x-IUg" userLabel="Mixer Output Level Fader">
+                                <rect key="frame" x="22" y="96" width="556" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="28" id="cCf-74-qge"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="mixerOutputGainChanged:" destination="dpv-YD-sVn" eventType="valueChanged" id="GL5-dm-sJJ"/>
+                                </connections>
+                            </slider>
+                            <switch opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SdO-Su-06F" userLabel="Mixer Bus0 Switch">
+                                <rect key="frame" x="38" y="215" width="51" height="31"/>
+                                <connections>
+                                    <action selector="enableMixerInput:" destination="dpv-YD-sVn" eventType="valueChanged" id="dMk-wp-ims"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Guitar" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="q9c-PG-Kzb">
+                                <rect key="frame" x="23" y="188" width="529" height="21"/>
+                                <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Output Volume" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="dVR-nZ-yWC">
+                                <rect key="frame" x="25" y="67" width="529" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Qmn-76-Q8r"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0099999997764825821" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="r7d-Pm-fMT" userLabel="Mixer Bus1 Level Fader">
+                                <rect key="frame" x="148" y="300" width="430" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="28" id="CA8-Qf-J2i"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="mixerInputGainChanged:" destination="dpv-YD-sVn" eventType="valueChanged" id="O5a-nB-gSH"/>
+                                </connections>
+                            </slider>
+                            <switch opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RTa-Fv-pW1" userLabel="Mixer Bus1 Switch">
+                                <rect key="frame" x="40" y="297" width="51" height="31"/>
+                                <connections>
+                                    <action selector="enableMixerInput:" destination="dpv-YD-sVn" eventType="valueChanged" id="gxG-pU-55n"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Beats" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="72g-UW-Ltt">
+                                <rect key="frame" x="25" y="270" width="529" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Uci-rQ-bbF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="jPb-CQ-Z2T" secondAttribute="trailing" constant="-9" id="5YD-KE-7pt"/>
+                            <constraint firstItem="RTa-Fv-pW1" firstAttribute="top" secondItem="72g-UW-Ltt" secondAttribute="bottom" constant="6" id="6Xj-D4-567"/>
+                            <constraint firstAttribute="trailing" secondItem="Wxv-Va-GOE" secondAttribute="trailing" id="7w3-BN-Gqc"/>
+                            <constraint firstItem="72g-UW-Ltt" firstAttribute="trailing" secondItem="dVR-nZ-yWC" secondAttribute="trailing" id="8fA-Ha-WAf"/>
+                            <constraint firstItem="r7d-Pm-fMT" firstAttribute="bottom" secondItem="RTa-Fv-pW1" secondAttribute="bottom" id="9Bu-kD-5Ln"/>
+                            <constraint firstItem="72g-UW-Ltt" firstAttribute="top" secondItem="jPb-CQ-Z2T" secondAttribute="bottom" constant="18" id="9Q8-SV-BdI"/>
+                            <constraint firstItem="r7d-Pm-fMT" firstAttribute="leading" secondItem="RTa-Fv-pW1" secondAttribute="trailing" constant="61" id="AT6-f1-7w8"/>
+                            <constraint firstItem="BN0-46-tCZ" firstAttribute="trailing" secondItem="Bvb-4x-IUg" secondAttribute="trailing" id="BD2-bT-tFE"/>
+                            <constraint firstItem="SdO-Su-06F" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="18" id="CBf-fA-DTF"/>
+                            <constraint firstItem="RTa-Fv-pW1" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="20" id="E8H-AN-1Ak"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="leading" secondItem="ojE-zy-7id" secondAttribute="leading" id="EEZ-hi-nxB"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="CQy-ms-qmR" secondAttribute="trailing" constant="-9" id="EK0-5m-YS3"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leading" id="G8D-Ml-WkW"/>
+                            <constraint firstItem="CQy-ms-qmR" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="-10" id="JsX-pa-QgV"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="bottom" secondItem="1s2-We-voB" secondAttribute="top" id="K5W-SV-Ktj"/>
+                            <constraint firstItem="CQy-ms-qmR" firstAttribute="top" secondItem="SdO-Su-06F" secondAttribute="bottom" constant="14" id="KQK-TG-EsC"/>
+                            <constraint firstItem="ojE-zy-7id" firstAttribute="top" secondItem="r6J-nd-PW9" secondAttribute="bottom" id="Kmb-OT-FgD"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="centerX" secondItem="CQy-ms-qmR" secondAttribute="centerX" id="L1v-Nf-uYc"/>
+                            <constraint firstItem="72g-UW-Ltt" firstAttribute="leading" secondItem="dVR-nZ-yWC" secondAttribute="leading" id="LXK-ea-dyK"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="q9c-PG-Kzb" secondAttribute="trailing" constant="28" id="Lyz-1S-PGg"/>
+                            <constraint firstItem="SdO-Su-06F" firstAttribute="centerY" secondItem="BN0-46-tCZ" secondAttribute="centerY" id="QAR-UZ-j39"/>
+                            <constraint firstItem="BN0-46-tCZ" firstAttribute="top" secondItem="q9c-PG-Kzb" secondAttribute="bottom" constant="8" symbolic="YES" id="QKo-7J-Lmo"/>
+                            <constraint firstItem="q9c-PG-Kzb" firstAttribute="top" secondItem="Bvb-4x-IUg" secondAttribute="bottom" constant="64" id="RCA-6S-YOK"/>
+                            <constraint firstItem="q9c-PG-Kzb" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="3" id="SWz-zy-U6b"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="centerX" secondItem="Bvb-4x-IUg" secondAttribute="centerX" id="X9m-x3-oNC"/>
+                            <constraint firstItem="Bvb-4x-IUg" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="4" id="bRP-a9-z2D"/>
+                            <constraint firstItem="dVR-nZ-yWC" firstAttribute="top" secondItem="ojE-zy-7id" secondAttribute="bottom" constant="23" id="e0M-9j-6Ng"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="trailing" secondItem="ojE-zy-7id" secondAttribute="trailing" id="hEY-XC-ycV"/>
+                            <constraint firstItem="BN0-46-tCZ" firstAttribute="trailing" secondItem="r7d-Pm-fMT" secondAttribute="trailing" id="hzk-2B-w93"/>
+                            <constraint firstItem="dVR-nZ-yWC" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="5" id="kBE-jE-juD"/>
+                            <constraint firstItem="BN0-46-tCZ" firstAttribute="leading" secondItem="SdO-Su-06F" secondAttribute="trailing" constant="61" id="l27-HK-2VT"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="dVR-nZ-yWC" secondAttribute="trailing" constant="26" id="nNw-jo-29a"/>
+                            <constraint firstItem="CQy-ms-qmR" firstAttribute="top" secondItem="jPb-CQ-Z2T" secondAttribute="bottom" constant="8" symbolic="YES" id="q6l-Ye-qVe"/>
+                            <constraint firstItem="jPb-CQ-Z2T" firstAttribute="leading" secondItem="xMz-4G-PCt" secondAttribute="leadingMargin" constant="-10" id="ufm-hJ-mGd"/>
+                            <constraint firstItem="jPb-CQ-Z2T" firstAttribute="top" secondItem="Bvb-4x-IUg" secondAttribute="bottom" constant="54" id="wZE-p9-W6g"/>
+                            <constraint firstItem="Bvb-4x-IUg" firstAttribute="top" secondItem="dVR-nZ-yWC" secondAttribute="bottom" constant="8" symbolic="YES" id="wrb-uO-iEa"/>
+                            <constraint firstItem="Wxv-Va-GOE" firstAttribute="centerX" secondItem="jPb-CQ-Z2T" secondAttribute="centerX" id="ziL-KF-AQU"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <connections>
+                        <outlet property="mixerBus0LevelFader" destination="BN0-46-tCZ" id="KNB-ym-cb1"/>
+                        <outlet property="mixerBus0Switch" destination="SdO-Su-06F" id="swx-bU-mTh"/>
+                        <outlet property="mixerBus1LevelFader" destination="r7d-Pm-fMT" id="8xH-hA-LxC"/>
+                        <outlet property="mixerBus1Switch" destination="RTa-Fv-pW1" id="4VR-Ns-BAn"/>
+                        <outlet property="mixerOutputLevelFader" destination="Bvb-4x-IUg" id="R5y-30-YAs"/>
+                        <outlet property="playButton" destination="g48-kV-6Ea" id="ceN-A8-Mbr"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0c5-p8-Ag7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="rounded_rectangle.png" width="299" height="74"/>
+    </resources>
+</document>
