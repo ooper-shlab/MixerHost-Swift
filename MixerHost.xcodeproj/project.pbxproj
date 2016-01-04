@@ -25,7 +25,6 @@
 		D7B44A151BECE36B007F7040 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D7B44A141BECE36B007F7040 /* Main.storyboard */; };
 		D7B44A171BECE456007F7040 /* MixerHostAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B44A161BECE456007F7040 /* MixerHostAppDelegate.swift */; };
 		D7B44A191BECE569007F7040 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D7B44A181BECE569007F7040 /* LaunchScreen.storyboard */; };
-		D7D6A5FD1BED9ED60062D877 /* AudioBufferList+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D6A5FC1BED9ED60062D877 /* AudioBufferList+.swift */; };
 		D7D6A6031BEE05B00062D877 /* FourCharCode+StringLiteralConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D6A6021BEE05B00062D877 /* FourCharCode+StringLiteralConvertible.swift */; };
 		D7D6A6071BEE1BFF0062D877 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D7D6A6061BEE1BFF0062D877 /* Default-568h@2x.png */; };
 		D7D6A6161BEE39A70062D877 /* MixerHostAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D6A5F71BED95B20062D877 /* MixerHostAudio.swift */; };
@@ -56,7 +55,6 @@
 		D7B44A161BECE456007F7040 /* MixerHostAppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixerHostAppDelegate.swift; sourceTree = "<group>"; };
 		D7B44A181BECE569007F7040 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Resources/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D7D6A5F71BED95B20062D877 /* MixerHostAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixerHostAudio.swift; sourceTree = "<group>"; };
-		D7D6A5FC1BED9ED60062D877 /* AudioBufferList+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AudioBufferList+.swift"; sourceTree = "<group>"; };
 		D7D6A6021BEE05B00062D877 /* FourCharCode+StringLiteralConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FourCharCode+StringLiteralConvertible.swift"; sourceTree = "<group>"; };
 		D7D6A6041BEE15190062D877 /* MixerHostViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixerHostViewController.swift; sourceTree = "<group>"; };
 		D7D6A6061BEE1BFF0062D877 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../../Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -170,7 +168,6 @@
 			isa = PBXGroup;
 			children = (
 				D7D6A6021BEE05B00062D877 /* FourCharCode+StringLiteralConvertible.swift */,
-				D7D6A5FC1BED9ED60062D877 /* AudioBufferList+.swift */,
 			);
 			path = OOPUtils;
 			sourceTree = "<group>";
@@ -257,7 +254,6 @@
 				D7D6A6161BEE39A70062D877 /* MixerHostAudio.swift in Sources */,
 				D7B44A171BECE456007F7040 /* MixerHostAppDelegate.swift in Sources */,
 				D7D6A6171BEE39AC0062D877 /* MixerHostViewController.swift in Sources */,
-				D7D6A5FD1BED9ED60062D877 /* AudioBufferList+.swift in Sources */,
 				D7D6A6031BEE05B00062D877 /* FourCharCode+StringLiteralConvertible.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -118,6 +118,7 @@ private func inputRenderCallback(
     //        responsibility is to fill the buffer(s) in the
     //        AudioBufferList.
     ) -> OSStatus {
+        let ioPtr = UnsafeMutableAudioBufferListPointer(ioData)
         
         let soundStructPointerArray = UnsafeMutablePointer<SoundStruct>(inRefCon)
         let frameTotalForSound = Int(soundStructPointerArray[Int(inBusNumber)].frameCount)
@@ -136,8 +137,8 @@ private func inputRenderCallback(
         var outSamplesChannelLeft: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
         var outSamplesChannelRight: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
         
-        outSamplesChannelLeft = ioData.data(0)
-        if isStereo {outSamplesChannelRight = ioData.data(1)}
+        outSamplesChannelLeft = UnsafeMutablePointer(ioPtr[0].mData)
+        if isStereo {outSamplesChannelRight = UnsafeMutablePointer(ioPtr[1].mData)}
         
         // Get the sample number, as an index into the sound stored in memory,
         //    to start reading data from.
@@ -487,31 +488,31 @@ class MixerHostAudio: NSObject {
             
             // Allocate memory for the buffer list struct according to the number of
             //    channels it represents.
-            var bufferList = AudioBufferList.alloc(Int(channelCount))
+            let bufferList = AudioBufferList.allocate(maximumBuffers: Int(channelCount))
             
-            guard bufferList != nil else {
-                NSLog("*** malloc failure for allocating bufferList memory")
-                return
-            }
+//            guard bufferList != nil else {
+//                NSLog("*** malloc failure for allocating bufferList memory")
+//                return
+//            }
             
             // initialize the mNumberBuffers member
-            print(bufferList.memory.mNumberBuffers)
+            print(bufferList.count)
             
             // initialize the mBuffers member to 0
             let emptyBuffer = AudioBuffer()
             for arrayIndex in 0..<Int(channelCount) {
-                bufferList.audioBufferPtr(arrayIndex).memory = emptyBuffer
+                bufferList[arrayIndex] = emptyBuffer
             }
             
             // set up the AudioBuffer structs in the buffer list
-            bufferList.setNumberChannels(1, atIndex: 0)
-            bufferList.setByteSize(Int(totalFramesInFile) * strideof(MyAudioUnitSampleType), atIndex: 0)
-            bufferList.setData(soundStructArray[audioFile].audioDataLeft, atIndex: 0)
+            bufferList[0].mNumberChannels = 1
+            bufferList[0].mDataByteSize = UInt32(totalFramesInFile) * UInt32(strideof(MyAudioUnitSampleType))
+            bufferList[0].mData = UnsafeMutablePointer(soundStructArray[audioFile].audioDataLeft)
             
             if channelCount == 2 {
-                bufferList.setNumberChannels(1, atIndex: 1)
-                bufferList.setByteSize(Int(totalFramesInFile) * strideof(MyAudioUnitSampleType), atIndex: 1)
-                bufferList.setData(soundStructArray[audioFile].audioDataRight, atIndex: 1)
+                bufferList[1].mNumberChannels = 1
+                bufferList[1].mDataByteSize = UInt32(totalFramesInFile) * UInt32(strideof(MyAudioUnitSampleType))
+                bufferList[1].mData = UnsafeMutablePointer(soundStructArray[audioFile].audioDataRight)
             }
             
             // Perform a synchronous, sequential read of the audio data out of the file and
@@ -522,10 +523,10 @@ class MixerHostAudio: NSObject {
             result = ExtAudioFileRead(
                 audioFileObject,
                 &numberOfPacketsToRead,
-                bufferList
+                bufferList.unsafeMutablePointer
             )
             
-            bufferList.dispose()
+            free(bufferList.unsafeMutablePointer)
             
             guard result == noErr else {
                 
