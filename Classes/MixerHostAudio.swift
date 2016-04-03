@@ -151,7 +151,7 @@ private func inputRenderCallback(
             outSamplesChannelLeft[frameNumber]                 = dataInLeft[sampleNumber]
             if (isStereo) {outSamplesChannelRight[frameNumber]  = dataInRight[sampleNumber]}
             
-            sampleNumber++
+            sampleNumber += 1
             
             // After reaching the end of the sound stored in memory--that is, after
             //    (frameTotalForSound / inNumberFrames) invocations of this callback--loop back to the
@@ -276,7 +276,7 @@ class MixerHostAudio: NSObject {
         name:        AVAudioSessionInterruptionNotification
         object:      [AVAudioSession sharedInstance]];
         */
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleInterruption:", name: AVAudioSessionInterruptionNotification, object: mySession)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MixerHostAudio.handleInterruption(_:)), name: AVAudioSessionInterruptionNotification, object: mySession)
         
         // Assign the Playback category to the audio session.
         do {
@@ -314,7 +314,7 @@ class MixerHostAudio: NSObject {
         self.graphSampleRate = mySession.sampleRate
         
         // Register the audio route change listener callback function with the audio session.
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleRouteChange:", name: AVAudioSessionRouteChangeNotification, object: mySession)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MixerHostAudio.handleRouteChange(_:)), name: AVAudioSessionRouteChangeNotification, object: mySession)
     }
     
     

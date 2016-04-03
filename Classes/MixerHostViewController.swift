@@ -174,7 +174,7 @@ class MixerHostViewController: UIViewController {
         let notificationCenter = NSNotificationCenter.defaultCenter()
         
         notificationCenter.addObserver(self,
-            selector: "handlePlaybackStateChanged:",
+            selector: #selector(MixerHostViewController.handlePlaybackStateChanged(_:)),
             name: MixerHostAudioObjectPlaybackStateDidChangeNotification,
             object: audioObject)
     }
