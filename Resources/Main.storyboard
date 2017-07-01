@@ -1,9 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dpv-YD-sVn">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dpv-YD-sVn">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Mixer Host View Controller-->
@@ -15,17 +19,17 @@
                         <viewControllerLayoutGuide type="bottom" id="1s2-We-voB"/>
                     </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="xMz-4G-PCt">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <navigationBar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="ojE-zy-7id">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                                 <items>
                                     <navigationItem title="MixerHost" id="awc-1Y-dP8"/>
                                 </items>
                             </navigationBar>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="Wxv-Va-GOE">
-                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <rect key="frame" x="0.0" y="692" width="414" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="4Gn-rm-3Gx"/>
                                     <barButtonItem title="Play" width="240" style="plain" id="g48-kV-6Ea">
@@ -37,13 +41,13 @@
                                 </items>
                             </toolbar>
                             <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="rounded_rectangle.png" translatesAutoresizingMaskIntoConstraints="NO" id="jPb-CQ-Z2T">
-                                <rect key="frame" x="10" y="178" width="579" height="74"/>
+                                <rect key="frame" x="10" y="178" width="393" height="74"/>
                             </imageView>
                             <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="rounded_rectangle.png" translatesAutoresizingMaskIntoConstraints="NO" id="CQy-ms-qmR">
-                                <rect key="frame" x="10" y="260" width="579" height="74"/>
+                                <rect key="frame" x="10" y="260" width="393" height="74"/>
                             </imageView>
                             <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0099999997764825821" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="BN0-46-tCZ" userLabel="Mixer Bus0 Level Fader">
-                                <rect key="frame" x="146" y="217" width="432" height="29"/>
+                                <rect key="frame" x="146" y="217" width="246" height="29"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="28" id="ceR-Dv-0FW"/>
                                 </constraints>
@@ -52,7 +56,7 @@
                                 </connections>
                             </slider>
                             <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Bvb-4x-IUg" userLabel="Mixer Output Level Fader">
-                                <rect key="frame" x="22" y="96" width="556" height="29"/>
+                                <rect key="frame" x="22" y="96" width="370" height="29"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="28" id="cCf-74-qge"/>
                                 </constraints>
@@ -67,22 +71,22 @@
                                 </connections>
                             </switch>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Guitar" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="q9c-PG-Kzb">
-                                <rect key="frame" x="23" y="188" width="529" height="21"/>
+                                <rect key="frame" x="23" y="188" width="343" height="21"/>
                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Output Volume" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="dVR-nZ-yWC">
-                                <rect key="frame" x="25" y="67" width="529" height="21"/>
+                                <rect key="frame" x="25" y="67" width="343" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="Qmn-76-Q8r"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0099999997764825821" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="r7d-Pm-fMT" userLabel="Mixer Bus1 Level Fader">
-                                <rect key="frame" x="148" y="300" width="430" height="29"/>
+                                <rect key="frame" x="148" y="300" width="244" height="29"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="28" id="CA8-Qf-J2i"/>
                                 </constraints>
@@ -97,12 +101,12 @@
                                 </connections>
                             </switch>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Beats" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="72g-UW-Ltt">
-                                <rect key="frame" x="25" y="270" width="529" height="21"/>
+                                <rect key="frame" x="25" y="270" width="343" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="Uci-rQ-bbF"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="14"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>

@@ -74,8 +74,8 @@ struct SoundStruct {
     var isStereo: Bool = false           // set to true if there is data in the audioDataRight member
     var frameCount: UInt32 = 0         // the total number of frames in the audio data
     var sampleNumber: UInt32 = 0       // the next audio sample to play
-    var audioDataLeft: UnsafeMutablePointer<MyAudioUnitSampleType> = nil     // the complete left (or mono) channel of audio data read from an audio file
-    var audioDataRight: UnsafeMutablePointer<MyAudioUnitSampleType> = nil    // the complete right channel of audio data read from an audio file
+    var audioDataLeft: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil     // the complete left (or mono) channel of audio data read from an audio file
+    var audioDataRight: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil    // the complete right channel of audio data read from an audio file
     
 }
 
@@ -103,30 +103,30 @@ struct SoundStruct {
 //    In addition, it's usually best to avoid sending Objective-C messages in a render callback.
 //
 //    Declared as AURenderCallback in AudioUnit/AUComponent.h. See Audio Unit Component Services Reference.
-private func inputRenderCallback(
-    inRefCon: UnsafeMutablePointer<Void>,      // A pointer to a struct containing the complete audio data
+private let inputRenderCallback: AURenderCallback = {
+    inRefCon,      // A pointer to a struct containing the complete audio data
     //    to play, as well as state information such as the
     //    first sample to play on this invocation of the callback.
-    ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>, // Unused here. When generating audio, use ioActionFlags to indicate silence
+    ioActionFlags, // Unused here. When generating audio, use ioActionFlags to indicate silence
     //    between sounds; for silence, also memset the ioData buffers to 0.
-    inTimeStamp: UnsafePointer<AudioTimeStamp>,   // Unused here.
-    inBusNumber: UInt32,    // The mixer unit input bus that is requesting some new
+    inTimeStamp,   // Unused here.
+    inBusNumber,    // The mixer unit input bus that is requesting some new
     //        frames of audio data to play.
-    inNumberFrames: UInt32, // The number of frames of audio to provide to the buffer(s)
+    inNumberFrames, // The number of frames of audio to provide to the buffer(s)
     //        pointed to by the ioData parameter.
-    ioData: UnsafeMutablePointer<AudioBufferList>         // On output, the audio data to play. The callback's primary
+    ioData         // On output, the audio data to play. The callback's primary
     //        responsibility is to fill the buffer(s) in the
     //        AudioBufferList.
-    ) -> OSStatus {
+    in
         let ioPtr = UnsafeMutableAudioBufferListPointer(ioData)
         
-        let soundStructPointerArray = UnsafeMutablePointer<SoundStruct>(inRefCon)
+        let soundStructPointerArray = inRefCon.assumingMemoryBound(to: SoundStruct.self)
         let frameTotalForSound = Int(soundStructPointerArray[Int(inBusNumber)].frameCount)
         let isStereo = soundStructPointerArray[Int(inBusNumber)].isStereo
         
         // Declare variables to point to the audio buffers. Their data type must match the buffer data type.
-        var dataInLeft: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
-        var dataInRight: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
+        var dataInLeft: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil
+        var dataInRight: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil
         
         dataInLeft                 = soundStructPointerArray[Int(inBusNumber)].audioDataLeft
         if isStereo {dataInRight  = soundStructPointerArray[Int(inBusNumber)].audioDataRight}
@@ -134,11 +134,11 @@ private func inputRenderCallback(
         // Establish pointers to the memory into which the audio from the buffers should go. This reflects
         //    the fact that each Multichannel Mixer unit input bus has two channels, as specified by this app's
         //    graphStreamFormat variable.
-        var outSamplesChannelLeft: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
-        var outSamplesChannelRight: UnsafeMutablePointer<MyAudioUnitSampleType> = nil
+        var outSamplesChannelLeft: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil
+        var outSamplesChannelRight: UnsafeMutablePointer<MyAudioUnitSampleType>? = nil
         
-        outSamplesChannelLeft = UnsafeMutablePointer(ioPtr[0].mData)
-        if isStereo {outSamplesChannelRight = UnsafeMutablePointer(ioPtr[1].mData)}
+        outSamplesChannelLeft = ioPtr?[0].mData?.assumingMemoryBound(to: MyAudioUnitSampleType.self)
+        if isStereo {outSamplesChannelRight = ioPtr?[1].mData?.assumingMemoryBound(to: MyAudioUnitSampleType.self)}
         
         // Get the sample number, as an index into the sound stored in memory,
         //    to start reading data from.
@@ -148,8 +148,8 @@ private func inputRenderCallback(
         //    of audio from the sound stored in memory.
         for frameNumber in 0..<Int(inNumberFrames) {
             
-            outSamplesChannelLeft[frameNumber]                 = dataInLeft[sampleNumber]
-            if (isStereo) {outSamplesChannelRight[frameNumber]  = dataInRight[sampleNumber]}
+            outSamplesChannelLeft?[frameNumber]                 = dataInLeft![sampleNumber]
+            if isStereo {outSamplesChannelRight?[frameNumber]  = dataInRight![sampleNumber]}
             
             sampleNumber += 1
             
@@ -173,8 +173,8 @@ class MixerHostAudio: NSObject {
     
     /// sample rate to use throughout audio processing chain
     var graphSampleRate: Float64 = 0
-    private var sourceURLArray: [NSURL]!
-    private var soundStructArray = UnsafeMutablePointer<SoundStruct>.alloc(2)
+    private var sourceURLArray: [URL]!
+    private var soundStructArray = UnsafeMutablePointer<SoundStruct>.allocate(capacity: 2)
     
     // Before using an AudioStreamBasicDescription struct you must initialize it to 0. However, because these ASBDs
     // are declared in external storage, they are automatically initialized to 0.
@@ -183,13 +183,13 @@ class MixerHostAudio: NSObject {
     var stereoStreamFormat: AudioStreamBasicDescription = AudioStreamBasicDescription()
     /// mono format for use in buffer and mixer input for "beats" sound
     var monoStreamFormat: AudioStreamBasicDescription = AudioStreamBasicDescription()
-    private var processingGraph: AUGraph = nil
+    private var processingGraph: AUGraph? = nil
     /// Boolean flag to indicate whether audio is playing or not
     var playing: Bool = false
     /// Boolean flag to indicate whether audio was playing when an interruption arrived
     var interruptedDuringPlayback: Bool = false
     /// the Multichannel Mixer unit
-    var mixerUnit: AudioUnit = nil
+    var mixerUnit: AudioUnit? = nil
     
     //MARK: -
     //MARK: Audio route change listener callback
@@ -199,10 +199,10 @@ class MixerHostAudio: NSObject {
     //   that supports audio playback, this callback detects that and stops playback.
     //
     // Refer to AudioSessionPropertyListener in Audio Session Services Reference.
-    @objc func handleRouteChange(notification: NSNotification) {
+    @objc func handleRouteChange(_ notification: Notification) {
         
         // Ensure that this callback was invoked because of an audio route change
-        guard notification.name == AVAudioSessionRouteChangeNotification else {return}
+        guard notification.name == .AVAudioSessionRouteChange else {return}
         
         // This callback, being outside the implementation block, needs a reference to the MixerHostAudio
         //   object, which it receives in the inUserData parameter. You provide this reference when
@@ -227,11 +227,11 @@ class MixerHostAudio: NSObject {
         // "Old device unavailable" indicates that a headset or headphones were unplugged, or that
         //    the device was removed from a dock connector that supports audio output. In such a case,
         //    pause or stop audio (as advised by the iOS Human Interface Guidelines).
-        if routeChangeReason == AVAudioSessionRouteChangeReason.OldDeviceUnavailable.rawValue {
+        if routeChangeReason == AVAudioSessionRouteChangeReason.oldDeviceUnavailable.rawValue {
             
             NSLog("Audio output device was removed; stopping audio playback.")
             let MixerHostAudioObjectPlaybackStateDidChangeNotification = "MixerHostAudioObjectPlaybackStateDidChangeNotification"
-            NSNotificationCenter.defaultCenter().postNotificationName(MixerHostAudioObjectPlaybackStateDidChangeNotification, object: audioObject)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: MixerHostAudioObjectPlaybackStateDidChangeNotification), object: audioObject)
             
         } else {
             
@@ -276,7 +276,7 @@ class MixerHostAudio: NSObject {
         name:        AVAudioSessionInterruptionNotification
         object:      [AVAudioSession sharedInstance]];
         */
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MixerHostAudio.handleInterruption(_:)), name: AVAudioSessionInterruptionNotification, object: mySession)
+        NotificationCenter.default.addObserver(self, selector: #selector(MixerHostAudio.handleInterruption(_:)), name: .AVAudioSessionInterruption, object: mySession)
         
         // Assign the Playback category to the audio session.
         do {
@@ -314,16 +314,16 @@ class MixerHostAudio: NSObject {
         self.graphSampleRate = mySession.sampleRate
         
         // Register the audio route change listener callback function with the audio session.
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MixerHostAudio.handleRouteChange(_:)), name: AVAudioSessionRouteChangeNotification, object: mySession)
+        NotificationCenter.default.addObserver(self, selector: #selector(MixerHostAudio.handleRouteChange(_:)), name: .AVAudioSessionRouteChange, object: mySession)
     }
     
     
     private func obtainSoundFileURLs() {
         
         // Create the URLs for the source audio files. The URLForResource:withExtension: method is new in iOS 4.0.
-        let guitarLoop = NSBundle.mainBundle().URLForResource("guitarStereo", withExtension: "caf")!
+        let guitarLoop = Bundle.main.url(forResource: "guitarStereo", withExtension: "caf")!
         
-        let beatsLoop = NSBundle.mainBundle().URLForResource("beatsMono", withExtension: "caf")!
+        let beatsLoop = Bundle.main.url(forResource: "beatsMono", withExtension: "caf")!
         
         // ExtAudioFileRef objects expect CFURLRef URLs, so cast to CRURLRef here
         sourceURLArray = [guitarLoop, beatsLoop]
@@ -334,7 +334,7 @@ class MixerHostAudio: NSObject {
         
         // The AudioUnitSampleType data type is the recommended type for sample data in audio
         //    units. This obtains the byte size of the type for use in filling in the ASBD.
-        let bytesPerSample = UInt32(strideof(MyAudioUnitSampleType))
+        let bytesPerSample = UInt32(MemoryLayout<MyAudioUnitSampleType>.stride)
         
         // Fill the application audio format struct's fields to define a linear PCM,
         //        stereo, noninterleaved stream at the hardware sample rate.
@@ -357,7 +357,7 @@ class MixerHostAudio: NSObject {
         
         // The AudioUnitSampleType data type is the recommended type for sample data in audio
         //    units. This obtains the byte size of the type for use in filling in the ASBD.
-        let bytesPerSample = UInt32(strideof(MyAudioUnitSampleType))
+        let bytesPerSample = UInt32(MemoryLayout<MyAudioUnitSampleType>.stride)
         
         // Fill the application audio format struct's fields to define a linear PCM,
         //        stereo, noninterleaved stream at the hardware sample rate.
@@ -381,15 +381,15 @@ class MixerHostAudio: NSObject {
     
     private func readAudioFilesIntoMemory() {
         
-        for (audioFile, sourceURL) in sourceURLArray.enumerate() {
+        for (audioFile, sourceURL) in sourceURLArray.enumerated() {
             
             NSLog("readAudioFilesIntoMemory - file %i", Int32(audioFile))
             
             // Instantiate an extended audio file object.
-            var audioFileObject: ExtAudioFileRef = nil
+            var audioFileObject: ExtAudioFileRef? = nil
             
             // Open an audio file and associate it with the extended audio file object.
-            var result = ExtAudioFileOpenURL(sourceURL, &audioFileObject)
+            var result = ExtAudioFileOpenURL(sourceURL as CFURL, &audioFileObject)
             
             guard result == noErr else {
                 self.printErrorMessage("ExtAudioFileOpenURL", withStatus: result)
@@ -398,10 +398,10 @@ class MixerHostAudio: NSObject {
             
             // Get the audio file's length in frames.
             var totalFramesInFile: UInt64 = 0
-            var frameLengthPropertySize = UInt32(sizeofValue(totalFramesInFile))
+            var frameLengthPropertySize = UInt32(MemoryLayout.size(ofValue: totalFramesInFile))
             
             result =    ExtAudioFileGetProperty(
-                audioFileObject,
+                audioFileObject!,
                 kExtAudioFileProperty_FileLengthFrames,
                 &frameLengthPropertySize,
                 &totalFramesInFile
@@ -417,10 +417,10 @@ class MixerHostAudio: NSObject {
             
             // Get the audio file's number of channels.
             var fileAudioFormat: AudioStreamBasicDescription = AudioStreamBasicDescription()
-            var formatPropertySize = UInt32(strideofValue(fileAudioFormat))
+            var formatPropertySize = UInt32(MemoryLayout.stride(ofValue: fileAudioFormat))
             
             result =    ExtAudioFileGetProperty(
-                audioFileObject,
+                audioFileObject!,
                 kExtAudioFileProperty_FileDataFormat,
                 &formatPropertySize,
                 &fileAudioFormat
@@ -436,7 +436,7 @@ class MixerHostAudio: NSObject {
             // Allocate memory in the soundStructArray instance variable to hold the left channel,
             //    or mono, audio data
             soundStructArray[audioFile].audioDataLeft =
-                UnsafeMutablePointer<MyAudioUnitSampleType>.alloc(Int(totalFramesInFile))
+                UnsafeMutablePointer<MyAudioUnitSampleType>.allocate(capacity: Int(totalFramesInFile))
             
             var importFormat = AudioStreamBasicDescription()
             if channelCount == 2 {
@@ -445,7 +445,7 @@ class MixerHostAudio: NSObject {
                 // Sound is stereo, so allocate memory in the soundStructArray instance variable to
                 //    hold the right channel audio data
                 soundStructArray[audioFile].audioDataRight =
-                    UnsafeMutablePointer<MyAudioUnitSampleType>.alloc(Int(totalFramesInFile))
+                    UnsafeMutablePointer<MyAudioUnitSampleType>.allocate(capacity: Int(totalFramesInFile))
                 importFormat = stereoStreamFormat
                 
             } else if channelCount == 1 {
@@ -456,7 +456,7 @@ class MixerHostAudio: NSObject {
             } else {
                 
                 NSLog("*** WARNING: File format not supported - wrong number of channels")
-                ExtAudioFileDispose(audioFileObject)
+                ExtAudioFileDispose(audioFileObject!)
                 return
             }
             
@@ -466,9 +466,9 @@ class MixerHostAudio: NSObject {
             //        inputRenderCallback callback function.
             
             result =    ExtAudioFileSetProperty(
-                audioFileObject,
+                audioFileObject!,
                 kExtAudioFileProperty_ClientDataFormat,
-                UInt32(strideofValue(importFormat)),
+                UInt32(MemoryLayout.stride(ofValue: importFormat)),
                 &importFormat
             )
             
@@ -506,13 +506,13 @@ class MixerHostAudio: NSObject {
             
             // set up the AudioBuffer structs in the buffer list
             bufferList[0].mNumberChannels = 1
-            bufferList[0].mDataByteSize = UInt32(totalFramesInFile) * UInt32(strideof(MyAudioUnitSampleType))
-            bufferList[0].mData = UnsafeMutablePointer(soundStructArray[audioFile].audioDataLeft)
+            bufferList[0].mDataByteSize = UInt32(totalFramesInFile) * UInt32(MemoryLayout<MyAudioUnitSampleType>.stride)
+            bufferList[0].mData = UnsafeMutableRawPointer(soundStructArray[audioFile].audioDataLeft)
             
             if channelCount == 2 {
                 bufferList[1].mNumberChannels = 1
-                bufferList[1].mDataByteSize = UInt32(totalFramesInFile) * UInt32(strideof(MyAudioUnitSampleType))
-                bufferList[1].mData = UnsafeMutablePointer(soundStructArray[audioFile].audioDataRight)
+                bufferList[1].mDataByteSize = UInt32(totalFramesInFile) * UInt32(MemoryLayout<MyAudioUnitSampleType>.stride)
+                bufferList[1].mData = UnsafeMutableRawPointer(soundStructArray[audioFile].audioDataRight)
             }
             
             // Perform a synchronous, sequential read of the audio data out of the file and
@@ -521,7 +521,7 @@ class MixerHostAudio: NSObject {
             
             NSLog("numberOfPacketsToRead=%d", Int32(numberOfPacketsToRead));
             result = ExtAudioFileRead(
-                audioFileObject,
+                audioFileObject!,
                 &numberOfPacketsToRead,
                 bufferList.unsafeMutablePointer
             )
@@ -533,15 +533,15 @@ class MixerHostAudio: NSObject {
                 self.printErrorMessage("ExtAudioFileRead failure - ", withStatus: result)
                 
                 // If reading from the file failed, then free the memory for the sound buffer.
-                soundStructArray[audioFile].audioDataLeft.dealloc(Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
                 soundStructArray[audioFile].audioDataLeft = nil
                 
                 if channelCount == 2 {
-                    soundStructArray[audioFile].audioDataLeft.dealloc(Int(totalFramesInFile))
+                    soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
                     soundStructArray[audioFile].audioDataRight = nil
                 }
                 
-                ExtAudioFileDispose(audioFileObject)
+                ExtAudioFileDispose(audioFileObject!)
                 return
             }
             
@@ -553,7 +553,7 @@ class MixerHostAudio: NSObject {
             
             // Dispose of the extended audio file object, which also
             //    closes the associated file.
-            ExtAudioFileDispose(audioFileObject)
+            ExtAudioFileDispose(audioFileObject!)
         }
     }
     
@@ -616,7 +616,7 @@ class MixerHostAudio: NSObject {
         
         // Add the nodes to the audio processing graph
         result =    AUGraphAddNode(
-            processingGraph,
+            processingGraph!,
             &iOUnitDescription,
             &iONode)
         
@@ -627,7 +627,7 @@ class MixerHostAudio: NSObject {
         
         
         result =    AUGraphAddNode(
-            processingGraph,
+            processingGraph!,
             &MixerUnitDescription,
             &mixerNode
         )
@@ -644,7 +644,7 @@ class MixerHostAudio: NSObject {
         // Following this call, the audio units are instantiated but not initialized
         //    (no resource allocation occurs and the audio units are not in a state to
         //    process audio).
-        result = AUGraphOpen(processingGraph)
+        result = AUGraphOpen(processingGraph!)
         
         guard result == noErr else {
             self.printErrorMessage("AUGraphOpen", withStatus: result)
@@ -656,7 +656,7 @@ class MixerHostAudio: NSObject {
         // Obtain the mixer unit instance from its corresponding node.
         
         result =    AUGraphNodeInfo(
-            processingGraph,
+            processingGraph!,
             mixerNode,
             nil,
             &mixerUnit
@@ -677,12 +677,12 @@ class MixerHostAudio: NSObject {
         
         NSLog("Setting mixer unit input bus count to: %u", busCount)
         result = AudioUnitSetProperty(
-            mixerUnit,
+            mixerUnit!,
             kAudioUnitProperty_ElementCount,
             kAudioUnitScope_Input,
             0,
             &busCount,
-            UInt32(sizeofValue(busCount))
+            UInt32(MemoryLayout.size(ofValue: busCount))
         )
         
         guard result == noErr else {
@@ -697,12 +697,12 @@ class MixerHostAudio: NSObject {
         var maximumFramesPerSlice: UInt32 = 4096
         
         result = AudioUnitSetProperty(
-            mixerUnit,
+            mixerUnit!,
             kAudioUnitProperty_MaximumFramesPerSlice,
             kAudioUnitScope_Global,
             0,
             &maximumFramesPerSlice,
-            UInt32(sizeofValue(maximumFramesPerSlice))
+            UInt32(MemoryLayout.size(ofValue: maximumFramesPerSlice))
         )
         
         guard result == noErr else {
@@ -722,7 +722,7 @@ class MixerHostAudio: NSObject {
             NSLog("Registering the render callback with mixer unit input bus %u", busNumber)
             // Set a callback for the specified node's specified input
             result = AUGraphSetNodeInputCallback(
-                processingGraph,
+                processingGraph!,
                 mixerNode,
                 busNumber,
                 &inputCallbackStruct
@@ -737,12 +737,12 @@ class MixerHostAudio: NSObject {
         
         NSLog("Setting stereo stream format for mixer unit \"guitar\" input bus")
         result = AudioUnitSetProperty(
-            mixerUnit,
+            mixerUnit!,
             kAudioUnitProperty_StreamFormat,
             kAudioUnitScope_Input,
             guitarBus,
             &stereoStreamFormat,
-            UInt32(sizeofValue(stereoStreamFormat))
+            UInt32(MemoryLayout.size(ofValue: stereoStreamFormat))
         )
         
         guard result == noErr else {
@@ -753,12 +753,12 @@ class MixerHostAudio: NSObject {
         
         NSLog("Setting mono stream format for mixer unit \"beats\" input bus")
         result = AudioUnitSetProperty(
-            mixerUnit,
+            mixerUnit!,
             kAudioUnitProperty_StreamFormat,
             kAudioUnitScope_Input,
             beatsBus,
             &monoStreamFormat,
-            UInt32(sizeofValue(monoStreamFormat))
+            UInt32(MemoryLayout.size(ofValue: monoStreamFormat))
         )
         
         guard result == noErr else {
@@ -771,12 +771,12 @@ class MixerHostAudio: NSObject {
         // Set the mixer unit's output sample rate format. This is the only aspect of the output stream
         //    format that must be explicitly set.
         result = AudioUnitSetProperty(
-            mixerUnit,
+            mixerUnit!,
             kAudioUnitProperty_SampleRate,
             kAudioUnitScope_Output,
             0,
             &graphSampleRate,
-            UInt32(sizeofValue(graphSampleRate))
+            UInt32(MemoryLayout.size(ofValue: graphSampleRate))
         )
         
         guard result == noErr else {
@@ -790,7 +790,7 @@ class MixerHostAudio: NSObject {
         NSLog("Connecting the mixer output to the input of the I/O unit output element")
         
         result = AUGraphConnectNodeInput (
-            processingGraph,
+            processingGraph!,
             mixerNode,         // source node
             0,                 // source node output bus number
             iONode,            // destination node
@@ -810,12 +810,12 @@ class MixerHostAudio: NSObject {
         // Call CAShow if you want to look at the state of the audio processing
         //    graph.
         NSLog("Audio processing graph state immediately before initializing it:")
-        CAShow(UnsafeMutablePointer(processingGraph))
+        CAShow(UnsafeMutablePointer(processingGraph!))
         
         NSLog("Initializing the audio processing graph")
         // Initialize the audio processing graph, configure audio data stream formats for
         //    each input and output, and validate the connections between audio units.
-        result = AUGraphInitialize(processingGraph)
+        result = AUGraphInitialize(processingGraph!)
         
         guard result == noErr else {
             self.printErrorMessage("AUGraphInitialize", withStatus: result)
@@ -831,7 +831,7 @@ class MixerHostAudio: NSObject {
     func startAUGraph() {
         
         NSLog("Starting audio processing graph")
-        let result = AUGraphStart(processingGraph)
+        let result = AUGraphStart(processingGraph!)
         guard result == noErr else {
             self.printErrorMessage("AUGraphStart", withStatus: result)
             return
@@ -845,15 +845,15 @@ class MixerHostAudio: NSObject {
         
         NSLog("Stopping audio processing graph")
         var isRunning: DarwinBoolean = false
-        var result = AUGraphIsRunning(processingGraph, &isRunning)
+        var result = AUGraphIsRunning(processingGraph!, &isRunning)
         guard result == noErr else {
             self.printErrorMessage("AUGraphIsRunning", withStatus: result)
             return
         }
         
-        if isRunning {
+        if isRunning.boolValue {
             
-            result = AUGraphStop(processingGraph)
+            result = AUGraphStop(processingGraph!)
             guard result == noErr else {
                 self.printErrorMessage("AUGraphStop", withStatus: result)
                 return
@@ -866,12 +866,12 @@ class MixerHostAudio: NSObject {
     //MARK: -
     //MARK: Mixer unit control
     // Enable or disable a specified bus
-    func enableMixerInput(inputBus: UInt32, isOn isOnValue: Bool) {
+    func enableMixerInput(_ inputBus: UInt32, isOn isOnValue: Bool) {
         
         NSLog("Bus %d now %@", Int32(inputBus), isOnValue ? "on" : "off")
         
         let result = AudioUnitSetParameter(
-            mixerUnit,
+            mixerUnit!,
             kMultiChannelMixerParam_Enable,
             kAudioUnitScope_Input,
             inputBus,
@@ -897,7 +897,7 @@ class MixerHostAudio: NSObject {
     
     
     // Set the mixer unit input volume for a specified bus
-    func setMixerInput(inputBus: UInt32, gain newGain: AudioUnitParameterValue) {
+    func setMixerInput(_ inputBus: UInt32, gain newGain: AudioUnitParameterValue) {
         
         /*
         This method does *not* ensure that sound loops stay in sync if the user has
@@ -912,7 +912,7 @@ class MixerHostAudio: NSObject {
         loops stay in sync when a user disables and then reenables an input bus.
         */
         let result = AudioUnitSetParameter(
-            mixerUnit,
+            mixerUnit!,
             kMultiChannelMixerParam_Volume,
             kAudioUnitScope_Input,
             inputBus,
@@ -929,10 +929,10 @@ class MixerHostAudio: NSObject {
     
     
     // Set the mxer unit output volume
-    func setMixerOutputGain(newGain: AudioUnitParameterValue) {
+    func setMixerOutputGain(_ newGain: AudioUnitParameterValue) {
         
         let result = AudioUnitSetParameter(
-            mixerUnit,
+            mixerUnit!,
             kMultiChannelMixerParam_Volume,
             kAudioUnitScope_Output,
             0,
@@ -950,14 +950,14 @@ class MixerHostAudio: NSObject {
     
     //MARK: -
     //MARK: Audio Session Delegate Methods
-    @objc func handleInterruption(notification: NSNotification) {
+    @objc func handleInterruption(_ notification: Notification) {
         let type = notification.userInfo![AVAudioSessionInterruptionTypeKey] as! UInt
         switch AVAudioSessionInterruptionType(rawValue: type)! {
             // Respond to having been interrupted. This method sends a notification to the
             //    controller object, which in turn invokes the playOrStop: toggle method. The
             //    interruptedDuringPlayback flag lets the  endInterruptionWithFlags: method know
             //    whether playback was in progress at the time of the interruption.
-        case .Began:
+        case .began:
             
             NSLog("Audio session was interrupted.")
             
@@ -966,19 +966,19 @@ class MixerHostAudio: NSObject {
                 self.interruptedDuringPlayback = true
                 
                 let MixerHostAudioObjectPlaybackStateDidChangeNotification = "MixerHostAudioObjectPlaybackStateDidChangeNotification"
-                NSNotificationCenter.defaultCenter().postNotificationName(MixerHostAudioObjectPlaybackStateDidChangeNotification, object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: MixerHostAudioObjectPlaybackStateDidChangeNotification), object: self)
             }
             
             
             // Respond to the end of an interruption. This method gets invoked, for example,
             //    after the user dismisses a clock alarm.
-        case .Ended:
+        case .ended:
             let rawFlags = notification.userInfo![AVAudioSessionInterruptionOptionKey] as! UInt
             let flags = AVAudioSessionInterruptionOptions(rawValue: rawFlags)
             
             // Test if the interruption that has just ended was one from which this app
             //    should resume playback.
-            if flags.contains(.ShouldResume) {
+            if flags.contains(.shouldResume) {
                 
                 do {
                     try AVAudioSession.sharedInstance().setActive(true)
@@ -999,7 +999,7 @@ class MixerHostAudio: NSObject {
                     // Resume playback by sending a notification to the controller object, which
                     //    in turn invokes the playOrStop: toggle method.
                     let MixerHostAudioObjectPlaybackStateDidChangeNotification = "MixerHostAudioObjectPlaybackStateDidChangeNotification"
-                    NSNotificationCenter.defaultCenter().postNotificationName(MixerHostAudioObjectPlaybackStateDidChangeNotification, object: self)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: MixerHostAudioObjectPlaybackStateDidChangeNotification), object: self)
                     
                 }
             }
@@ -1012,7 +1012,7 @@ class MixerHostAudio: NSObject {
     
     // You can use this method during development and debugging to look at the
     //    fields of an AudioStreamBasicDescription struct.
-    private func printASBD(asbd: AudioStreamBasicDescription) {
+    private func printASBD(_ asbd: AudioStreamBasicDescription) {
         
         let formatIDString = asbd.mFormatID.fourCharString
         
@@ -1027,7 +1027,7 @@ class MixerHostAudio: NSObject {
     }
     
     
-    private func printErrorMessage(errorString: String, withStatus result: OSStatus) {
+    private func printErrorMessage(_ errorString: String, withStatus result: OSStatus) {
         
         let resultString = FourCharCode(bitPattern: result).possibleFourCharString
         
@@ -1048,15 +1048,15 @@ class MixerHostAudio: NSObject {
             
             let totalFramesInFile = soundStructArray[audioFile].frameCount
             if soundStructArray[audioFile].audioDataLeft != nil {
-                soundStructArray[audioFile].audioDataLeft.dealloc(Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
                 soundStructArray[audioFile].audioDataLeft = nil
             }
             
             if soundStructArray[audioFile].audioDataRight != nil {
-                soundStructArray[audioFile].audioDataRight.dealloc(Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataRight?.deallocate(capacity: Int(totalFramesInFile))
                 soundStructArray[audioFile].audioDataRight = nil
             }
-            soundStructArray.dealloc(2)
+            soundStructArray.deallocate(capacity: 2)
         }
         
     }

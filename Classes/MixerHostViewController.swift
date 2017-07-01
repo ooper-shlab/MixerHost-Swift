@@ -82,8 +82,8 @@ class MixerHostViewController: UIViewController {
     private func initializeMixerSettingsToUI() {
         
         // Initialize mixer settings to UI
-        audioObject?.enableMixerInput(0, isOn: mixerBus0Switch.on)
-        audioObject?.enableMixerInput(1, isOn: mixerBus0Switch.on)
+        audioObject?.enableMixerInput(0, isOn: mixerBus0Switch.isOn)
+        audioObject?.enableMixerInput(1, isOn: mixerBus0Switch.isOn)
         
         audioObject?.setMixerOutputGain(mixerOutputLevelFader.value)
         
@@ -92,14 +92,14 @@ class MixerHostViewController: UIViewController {
     }
     
     // Handle a change in the mixer output gain slider.
-    @IBAction func mixerOutputGainChanged(sender: UISlider) {
+    @IBAction func mixerOutputGainChanged(_ sender: UISlider) {
         
         audioObject?.setMixerOutputGain(sender.value)
     }
     
     // Handle a change in a mixer input gain slider. The "tag" value of the slider lets this
     //    method distinguish between the two channels.
-    @IBAction func mixerInputGainChanged(sender: UISlider) {
+    @IBAction func mixerInputGainChanged(_ sender: UISlider) {
         
         let inputBus = sender.tag
         audioObject?.setMixerInput(UInt32(inputBus), gain: sender.value)
@@ -136,11 +136,11 @@ class MixerHostViewController: UIViewController {
     
     // Handle a Mixer unit input on/off switch action. The "tag" value of the switch lets this
     //    method distinguish between the two channels.
-    @IBAction func enableMixerInput(sender: UISwitch) {
+    @IBAction func enableMixerInput(_ sender: UISwitch) {
         
         let inputBus = UInt32(sender.tag)
         
-        audioObject?.enableMixerInput(inputBus, isOn: sender.on)
+        audioObject?.enableMixerInput(inputBus, isOn: sender.isOn)
         
     }
     
@@ -148,13 +148,13 @@ class MixerHostViewController: UIViewController {
     //MARK: -
     //MARK: Remote-control event handling
     // Respond to remote control events
-    override func remoteControlReceivedWithEvent(receivedEvent: UIEvent?) {
+    override func remoteControlReceived(with receivedEvent: UIEvent?) {
         
-        if receivedEvent?.type == UIEventType.RemoteControl {
+        if receivedEvent?.type == UIEventType.remoteControl {
             
             switch receivedEvent!.subtype {
                 
-            case UIEventSubtype.RemoteControlTogglePlayPause:
+            case UIEventSubtype.remoteControlTogglePlayPause:
                 self.playOrStop(self)
                 
             default:
@@ -171,11 +171,11 @@ class MixerHostViewController: UIViewController {
     //    this object by way of a notification. To learn about notifications, see Notification Programming Topics.
     private func registerForAudioObjectNotifications() {
         
-        let notificationCenter = NSNotificationCenter.defaultCenter()
+        let notificationCenter = NotificationCenter.default
         
         notificationCenter.addObserver(self,
             selector: #selector(MixerHostViewController.handlePlaybackStateChanged(_:)),
-            name: MixerHostAudioObjectPlaybackStateDidChangeNotification,
+            name: Notification.Name(MixerHostAudioObjectPlaybackStateDidChangeNotification),
             object: audioObject)
     }
     
@@ -198,14 +198,14 @@ class MixerHostViewController: UIViewController {
     // If using a nonmixable audio session category, as this app does, you must activate reception of
     //    remote-control events to allow reactivation of the audio session when running in the background.
     //    Also, to receive remote-control events, the app must be eligible to become the first responder.
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         super.viewDidAppear(animated)
-        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        UIApplication.shared.beginReceivingRemoteControlEvents()
         self.becomeFirstResponder()
     }
     
-    override func canBecomeFirstResponder() -> Bool {
+    override var canBecomeFirstResponder : Bool {
         
         return true
     }
@@ -219,20 +219,20 @@ class MixerHostViewController: UIViewController {
     }
     
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         
-        UIApplication.sharedApplication().endReceivingRemoteControlEvents()
+        UIApplication.shared.endReceivingRemoteControlEvents()
         self.resignFirstResponder()
         
         super.viewWillDisappear(animated)
     }
     
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        NSNotificationCenter.defaultCenter().removeObserver(self,
-            name: MixerHostAudioObjectPlaybackStateDidChangeNotification,
+        NotificationCenter.default.removeObserver(self,
+            name: Notification.Name(MixerHostAudioObjectPlaybackStateDidChangeNotification),
             object: audioObject)
         
     }
@@ -240,11 +240,11 @@ class MixerHostViewController: UIViewController {
     
     deinit {
         
-        NSNotificationCenter.defaultCenter().removeObserver(self,
-            name: MixerHostAudioObjectPlaybackStateDidChangeNotification,
+        NotificationCenter.default.removeObserver(self,
+            name: Notification.Name(MixerHostAudioObjectPlaybackStateDidChangeNotification),
             object: audioObject)
         
-        UIApplication.sharedApplication().endReceivingRemoteControlEvents()
+        UIApplication.shared.endReceivingRemoteControlEvents()
     }
     
 }

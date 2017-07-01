@@ -63,7 +63,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     
     
     
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         // The status bar is hidden for this app through the "Status bar is initially hidden" key
         //     in the MixerHost-Info.plist file.
@@ -74,7 +74,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     
     // This app doesn't need to do anything special during these transitions. The method stubs are left here
     //    for your use if you extend this app.
-    func applicationWillResignActive(application: UIApplication) {
+    func applicationWillResignActive(_ application: UIApplication) {
         /*
         Sent when the application is about to move from active to inactive state. This can occur for certain types
         of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the
@@ -86,7 +86,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     }
     
     
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         /*
         Use this method to release shared resources, save user data, invalidate timers, and store enough application
         state information to restore your application to its current state in case it is terminated later.
@@ -97,7 +97,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     }
     
     
-    func applicationWillEnterForeground(application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication) {
         /*
         Called as part of  transition from the background to the inactive state: here you can undo many of the
         changes made on entering the background.
@@ -105,7 +105,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     }
     
     
-    func applicationDidBecomeActive(application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication) {
         /*
         Restart any tasks that were paused (or not yet started) while the application was inactive. If the
         application was previously in the background, optionally refresh the user interface.
@@ -113,7 +113,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     }
     
     
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         /*
         Called when the application is about to terminate.
         
