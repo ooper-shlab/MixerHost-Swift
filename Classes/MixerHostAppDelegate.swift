@@ -63,7 +63,7 @@ class MixerHostAppDelegate: NSObject, UIApplicationDelegate {
     
     
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         // The status bar is hidden for this app through the "Status bar is initially hidden" key
         //     in the MixerHost-Info.plist file.

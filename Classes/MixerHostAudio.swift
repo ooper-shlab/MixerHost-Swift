@@ -202,7 +202,7 @@ class MixerHostAudio: NSObject {
     @objc func handleRouteChange(_ notification: Notification) {
         
         // Ensure that this callback was invoked because of an audio route change
-        guard notification.name == .AVAudioSessionRouteChange else {return}
+        guard notification.name == AVAudioSession.routeChangeNotification else {return}
         
         // This callback, being outside the implementation block, needs a reference to the MixerHostAudio
         //   object, which it receives in the inUserData parameter. You provide this reference when
@@ -227,7 +227,7 @@ class MixerHostAudio: NSObject {
         // "Old device unavailable" indicates that a headset or headphones were unplugged, or that
         //    the device was removed from a dock connector that supports audio output. In such a case,
         //    pause or stop audio (as advised by the iOS Human Interface Guidelines).
-        if routeChangeReason == AVAudioSessionRouteChangeReason.oldDeviceUnavailable.rawValue {
+        if routeChangeReason == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue {
             
             NSLog("Audio output device was removed; stopping audio playback.")
             let MixerHostAudioObjectPlaybackStateDidChangeNotification = "MixerHostAudioObjectPlaybackStateDidChangeNotification"
@@ -276,11 +276,15 @@ class MixerHostAudio: NSObject {
         name:        AVAudioSessionInterruptionNotification
         object:      [AVAudioSession sharedInstance]];
         */
-        NotificationCenter.default.addObserver(self, selector: #selector(MixerHostAudio.handleInterruption(_:)), name: .AVAudioSessionInterruption, object: mySession)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleInterruption(_:)), name: AVAudioSession.interruptionNotification, object: mySession)
         
         // Assign the Playback category to the audio session.
         do {
-            try mySession.setCategory(AVAudioSessionCategoryPlayback)
+            if #available(iOS 10.0, *) {
+                try mySession.setCategory(.playback, mode: .default)
+            } else {
+                try mySession.setCategory(.playback)
+            }
             
         } catch _ {
             
@@ -314,7 +318,7 @@ class MixerHostAudio: NSObject {
         self.graphSampleRate = mySession.sampleRate
         
         // Register the audio route change listener callback function with the audio session.
-        NotificationCenter.default.addObserver(self, selector: #selector(MixerHostAudio.handleRouteChange(_:)), name: .AVAudioSessionRouteChange, object: mySession)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRouteChange(_:)), name: AVAudioSession.routeChangeNotification, object: mySession)
     }
     
     
@@ -533,11 +537,11 @@ class MixerHostAudio: NSObject {
                 self.printErrorMessage("ExtAudioFileRead failure - ", withStatus: result)
                 
                 // If reading from the file failed, then free the memory for the sound buffer.
-                soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataLeft?.deallocate()
                 soundStructArray[audioFile].audioDataLeft = nil
                 
                 if channelCount == 2 {
-                    soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
+                    soundStructArray[audioFile].audioDataLeft?.deallocate()
                     soundStructArray[audioFile].audioDataRight = nil
                 }
                 
@@ -952,7 +956,7 @@ class MixerHostAudio: NSObject {
     //MARK: Audio Session Delegate Methods
     @objc func handleInterruption(_ notification: Notification) {
         let type = notification.userInfo![AVAudioSessionInterruptionTypeKey] as! UInt
-        switch AVAudioSessionInterruptionType(rawValue: type)! {
+        switch AVAudioSession.InterruptionType(rawValue: type)! {
             // Respond to having been interrupted. This method sends a notification to the
             //    controller object, which in turn invokes the playOrStop: toggle method. The
             //    interruptedDuringPlayback flag lets the  endInterruptionWithFlags: method know
@@ -974,7 +978,7 @@ class MixerHostAudio: NSObject {
             //    after the user dismisses a clock alarm.
         case .ended:
             let rawFlags = notification.userInfo![AVAudioSessionInterruptionOptionKey] as! UInt
-            let flags = AVAudioSessionInterruptionOptions(rawValue: rawFlags)
+            let flags = AVAudioSession.InterruptionOptions(rawValue: rawFlags)
             
             // Test if the interruption that has just ended was one from which this app
             //    should resume playback.
@@ -1003,6 +1007,8 @@ class MixerHostAudio: NSObject {
                     
                 }
             }
+        @unknown default:
+            NSLog("Audio session unknown interruption type.")
         }
     }
     
@@ -1046,17 +1052,16 @@ class MixerHostAudio: NSObject {
         
         for audioFile in 0..<NUM_FILES {
             
-            let totalFramesInFile = soundStructArray[audioFile].frameCount
             if soundStructArray[audioFile].audioDataLeft != nil {
-                soundStructArray[audioFile].audioDataLeft?.deallocate(capacity: Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataLeft?.deallocate()
                 soundStructArray[audioFile].audioDataLeft = nil
             }
             
             if soundStructArray[audioFile].audioDataRight != nil {
-                soundStructArray[audioFile].audioDataRight?.deallocate(capacity: Int(totalFramesInFile))
+                soundStructArray[audioFile].audioDataRight?.deallocate()
                 soundStructArray[audioFile].audioDataRight = nil
             }
-            soundStructArray.deallocate(capacity: 2)
+            soundStructArray.deallocate()
         }
         
     }

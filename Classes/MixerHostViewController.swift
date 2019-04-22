@@ -150,11 +150,11 @@ class MixerHostViewController: UIViewController {
     // Respond to remote control events
     override func remoteControlReceived(with receivedEvent: UIEvent?) {
         
-        if receivedEvent?.type == UIEventType.remoteControl {
+        if receivedEvent?.type == .remoteControl {
             
             switch receivedEvent!.subtype {
                 
-            case UIEventSubtype.remoteControlTogglePlayPause:
+            case .remoteControlTogglePlayPause:
                 self.playOrStop(self)
                 
             default:
@@ -174,7 +174,7 @@ class MixerHostViewController: UIViewController {
         let notificationCenter = NotificationCenter.default
         
         notificationCenter.addObserver(self,
-            selector: #selector(MixerHostViewController.handlePlaybackStateChanged(_:)),
+            selector: #selector(handlePlaybackStateChanged(_:)),
             name: Notification.Name(MixerHostAudioObjectPlaybackStateDidChangeNotification),
             object: audioObject)
     }
